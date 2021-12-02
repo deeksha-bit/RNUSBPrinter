@@ -58,6 +58,8 @@ public class USBPrinterAdapter implements PrinterAdapter {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if( action != null && action.equals( Intent.ACTION_BOOT_COMPLETED ) ) {
+                                       Log.d("", "intent added for bot device" );
+
                 try {
                     PackageManager pm = context.getPackageManager();
                     ApplicationInfo ai = pm.getApplicationInfo(YOUR_APP_PACKAGE_NAMESPACE, 0);
