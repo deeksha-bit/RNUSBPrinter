@@ -58,15 +58,15 @@ public class USBPrinterAdapter implements PrinterAdapter {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
-                // synchronized (this) {
-                //     UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                //     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                //         Log.i(LOG_TAG, "success to grant permission for device " + usbDevice.getDeviceId() + ", vendor_id: " + usbDevice.getVendorId() + " product_id: " + usbDevice.getProductId());
-                //         mUsbDevice = usbDevice;
-                //     } else {
-                //         Toast.makeText(context, "User refuses to obtain USB device permissions" + usbDevice.getDeviceName(), Toast.LENGTH_LONG).show();
-                //     }
-                // }
+                synchronized (this) {
+                    UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        Log.i(LOG_TAG, "success to grant permission for device " + usbDevice.getDeviceId() + ", vendor_id: " + usbDevice.getVendorId() + " product_id: " + usbDevice.getProductId());
+                        mUsbDevice = usbDevice;
+                    } else {
+                        Toast.makeText(context, "User refuses to obtain USB device permissions" + usbDevice.getDeviceName(), Toast.LENGTH_LONG).show();
+                    }
+                }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 if (mUsbDevice != null) {
                     Toast.makeText(context, "USB device has been turned off", Toast.LENGTH_LONG).show();
@@ -133,7 +133,7 @@ public class USBPrinterAdapter implements PrinterAdapter {
             Log.i(LOG_TAG, "already selected device, do not need repeat to connect");
             if(!mUSBManager.hasPermission(mUsbDevice)){
                 closeConnectionIfExists();
-                mUSBManager.requestPermission(mUsbDevice, mPermissionIndent);
+            //    mUSBManager.requestPermission(mUsbDevice, mPermissionIndent);
             }
             successCallback.invoke(new USBPrinterDevice(mUsbDevice).toRNWritableMap());
             return;
