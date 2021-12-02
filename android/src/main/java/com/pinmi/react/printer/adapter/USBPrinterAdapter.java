@@ -147,7 +147,7 @@ public class USBPrinterAdapter implements PrinterAdapter {
             if (usbDevice.getVendorId() == usbPrinterDeviceId.getVendorId() && usbDevice.getProductId() == usbPrinterDeviceId.getProductId()) {
                 Log.v(LOG_TAG, "request for device: vendor_id: " + usbPrinterDeviceId.getVendorId() + ", product_id: " + usbPrinterDeviceId.getProductId());
                 closeConnectionIfExists();
-                mUSBManager.requestPermission(usbDevice, mPermissionIndent);
+                // mUSBManager.requestPermission(usbDevice, mPermissionIndent);
                 successCallback.invoke(new USBPrinterDevice(usbDevice).toRNWritableMap());
                 return;
             }
