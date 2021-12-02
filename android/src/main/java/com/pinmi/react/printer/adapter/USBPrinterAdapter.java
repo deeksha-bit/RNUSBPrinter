@@ -57,7 +57,30 @@ public class USBPrinterAdapter implements PrinterAdapter {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (ACTION_USB_PERMISSION.equals(action)) {
+            if( action != null && action.equals( Intent.ACTION_BOOT_COMPLETED ) ) {
+                try {
+                    PackageManager pm = context.getPackageManager();
+                    ApplicationInfo ai = pm.getApplicationInfo(YOUR_APP_PACKAGE_NAMESPACE, 0);
+                    if (ai != null) {
+                        UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+                        IBinder b = ServiceManager.getService(Context.USB_SERVICE);
+                        IUsbManager service = IUsbManager.Stub.asInterface(b);
+
+                        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+                        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+                        while (deviceIterator.hasNext()) {
+                            UsbDevice device = deviceIterator.next();
+                            if (device.getVendorId() == 0x0403) {
+                                service.grantDevicePermission(device, ai.uid);
+                                service.setDevicePackage(device, YOUR_APP_PACKAGE_NAMESPACE);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    trace(e.toString());
+                }
+            }
+            else if (ACTION_USB_PERMISSION.equals(action)) {
                 synchronized (this) {
                     UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
@@ -133,7 +156,9 @@ public class USBPrinterAdapter implements PrinterAdapter {
             Log.i(LOG_TAG, "already selected device, do not need repeat to connect");
             if(!mUSBManager.hasPermission(mUsbDevice)){
                 closeConnectionIfExists();
-            //    mUSBManager.requestPermission(mUsbDevice, mPermissionIndent);
+                mUSBManager.grantDevicePermission( device, ai.uid );
+
+                //    mUSBManager.requestPermission(mUsbDevice, mPermissionIndent);
             }
             successCallback.invoke(new USBPrinterDevice(mUsbDevice).toRNWritableMap());
             return;
