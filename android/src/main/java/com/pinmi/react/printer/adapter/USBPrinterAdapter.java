@@ -85,6 +85,8 @@ public class USBPrinterAdapter implements PrinterAdapter {
                 }
             }
             else if (ACTION_USB_PERMISSION.equals(action)) {
+                            Log.d("", "intent added for boot device");
+
                 synchronized (this) {
                     UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
