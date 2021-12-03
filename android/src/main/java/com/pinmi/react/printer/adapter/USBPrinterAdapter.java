@@ -11,6 +11,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -58,34 +59,7 @@ public class USBPrinterAdapter implements PrinterAdapter {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            Log.d("getaction " , intent.getAction());
-            if( action != null && action.equals( Intent.ACTION_BOOT_COMPLETED ) ) {
-            Log.d("", "intent added for boot device");
-
-                try {
-                    PackageManager pm = context.getPackageManager();
-                    ApplicationInfo ai = pm.getApplicationInfo(YOUR_APP_PACKAGE_NAMESPACE, 0);
-                    if (ai != null) {
-                        UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-                        IBinder b = ServiceManager.getService(Context.USB_SERVICE);
-                        IUsbManager service = IUsbManager.Stub.asInterface(b);
-
-                        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
-                        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-                        while (deviceIterator.hasNext()) {
-                            UsbDevice device = deviceIterator.next();
-                            if (device.getVendorId() == 0x0403) {
-                                service.grantDevicePermission(device, ai.uid);
-                                service.setDevicePackage(device, YOUR_APP_PACKAGE_NAMESPACE);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    trace(e.toString());
-                }
-            }
-            else if (ACTION_USB_PERMISSION.equals(action)) {
-                            Log.d("", "intent added for boot device");
+             if (ACTION_USB_PERMISSION.equals(action)) {
 
                 synchronized (this) {
                     UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -162,9 +136,8 @@ public class USBPrinterAdapter implements PrinterAdapter {
             Log.i(LOG_TAG, "already selected device, do not need repeat to connect");
             if(!mUSBManager.hasPermission(mUsbDevice)){
                 closeConnectionIfExists();
-                mUSBManager.grantDevicePermission( device, ai.uid );
 
-                //    mUSBManager.requestPermission(mUsbDevice, mPermissionIndent);
+                mUSBManager.requestPermission(mUsbDevice, mPermissionIndent);
             }
             successCallback.invoke(new USBPrinterDevice(mUsbDevice).toRNWritableMap());
             return;
@@ -178,7 +151,7 @@ public class USBPrinterAdapter implements PrinterAdapter {
             if (usbDevice.getVendorId() == usbPrinterDeviceId.getVendorId() && usbDevice.getProductId() == usbPrinterDeviceId.getProductId()) {
                 Log.v(LOG_TAG, "request for device: vendor_id: " + usbPrinterDeviceId.getVendorId() + ", product_id: " + usbPrinterDeviceId.getProductId());
                 closeConnectionIfExists();
-                // mUSBManager.requestPermission(usbDevice, mPermissionIndent);
+                 mUSBManager.requestPermission(usbDevice, mPermissionIndent);
                 successCallback.invoke(new USBPrinterDevice(usbDevice).toRNWritableMap());
                 return;
             }
@@ -190,16 +163,17 @@ public class USBPrinterAdapter implements PrinterAdapter {
 
     private boolean openConnection() {
         if (mUsbDevice == null) {
-            Log.e(LOG_TAG, "USB Deivce is not initialized");
+
+            Log.e(LOG_TAG, "USB Deivce is not initialized1");
             return false;
         }
         if (mUSBManager == null) {
-            Log.e(LOG_TAG, "USB Manager is not initialized");
+            Log.e(LOG_TAG, "USB Manager is not initialized2");
             return false;
         }
 
         if (mUsbDeviceConnection != null) {
-            Log.i(LOG_TAG, "USB Connection already connected");
+            Log.i(LOG_TAG, "USB Connection already connected3");
             return true;
         }
 
